@@ -1,0 +1,133 @@
+# Ticketly - Java GitIgnore
+
+# ===== COMPILED CLASS FILES =====
+*.class
+
+# ===== LOG FILES =====
+*.log
+logs/
+
+# ===== MAVEN =====
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== IDE FILES =====
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
+.classpath
+.factorypath
+.buildpath
+.target
+
+# NetBeans
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# ===== OS GENERATED FILES =====
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Linux
+*~
+
+# ===== APPLICATION SPECIFIC =====
+# Database files (if using embedded database)
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with sensitive data
+database-production.properties
+config-production.properties
+
+# Application logs
+application.log
+error.log
+debug.log
+
+# Temporary files
+temp/
+tmp/
+
+# Generated documentation
+docs/generated/
+
+# Test output
+test-output/
+
+# ===== SECURITY =====
+# Ignore files containing passwords, API keys, etc.
+**/secrets.properties
+**/credentials.properties
+**/api-keys.properties
+
+# ===== DEPLOYMENT =====
+# JAR files (optional - remove this line if you want to commit JARs)
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Package Files
+*.7z
+
+# ===== JAVAFX =====
+# JavaFX Runtime
+runtime/
+
+# ===== BUILD OUTPUTS =====
+build/
+dist/
