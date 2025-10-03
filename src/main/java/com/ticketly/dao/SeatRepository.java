@@ -71,7 +71,7 @@ public class SeatRepository {
         }
 
         String insertBookingSql = "INSERT INTO bookings (user_id, show_id, seat_id, total_amount, payment_status, status) " +
-                                  "VALUES (?, ?, ?, ?, 'PAID', 'CONFIRMED')";
+                                  "VALUES (?, ?, ?, ?, 'COMPLETED', 'CONFIRMED')";
 
         logger.info("Booking seat: seatId={}, userId={}, showId={}, price={}", seatId, userId, showId, price);
 
