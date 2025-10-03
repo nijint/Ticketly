@@ -55,4 +55,35 @@ public class AuthService {
     public static Long getLoggedInUserId() {
         return loggedInUserId;
     }
+
+    /**
+     * Get logged-in user by ID.
+     */
+    public static User getLoggedInUser(Long userId) {
+        if (userId == null) return null;
+        // UserRepository does not have findById(Long), so implement here
+        String sql = "SELECT id, username, email, password_hash, full_name, phone, role, is_active, created_at, updated_at FROM users WHERE id = ?";
+        try (java.sql.Connection conn = com.ticketly.util.DatabaseUtil.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setId(rs.getLong("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password_hash"));
+                user.setFullName(rs.getString("full_name"));
+                user.setPhone(rs.getString("phone"));
+                user.setRole(rs.getString("role"));
+                user.setIsActive(rs.getBoolean("is_active"));
+                user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                user.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                return user;
+            }
+        } catch (java.sql.SQLException e) {
+            logger.error("Error finding user by ID: {}", userId, e);
+        }
+        return null;
+    }
 }

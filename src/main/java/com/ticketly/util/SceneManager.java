@@ -3,6 +3,8 @@ package com.ticketly.util;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -27,19 +29,19 @@ public class SceneManager {
             // Root StackPane (for background + overlay)
             StackPane root = new StackPane();
 
-            // Background with gradient
+            // Background with professional gradient
             Region bgRegion = new Region();
-            bgRegion.setStyle("-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);");
+            bgRegion.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3c72 0%, #2a5298 50%, #3a7bd5 100%);");
             bgRegion.setPrefSize(800, 600);
 
-            // Semi-transparent overlay VBox
-            VBox formBox = new VBox(15);
+            // Semi-transparent overlay VBox with enhanced styling
+            VBox formBox = new VBox(20);
             formBox.setAlignment(Pos.CENTER);
-            formBox.setMaxWidth(350);
-            formBox.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-padding: 30; -fx-background-radius: 15;");
+            formBox.setMaxWidth(380);
+            formBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-padding: 40; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
 
             // Title
-            Label title = new Label("🎟 Ticketly 🎬");
+            Label title = new Label("🎬Ticketly🎬");
             title.setStyle("-fx-font-size: 36px; -fx-font-family: 'Arial Black'; -fx-text-fill: #333;");
 
             // Username field with icon
@@ -132,16 +134,16 @@ public class SceneManager {
             // Root StackPane
             StackPane root = new StackPane();
 
-            // Background with gradient
+            // Background with professional gradient
             Region bgRegion = new Region();
-            bgRegion.setStyle("-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);");
+            bgRegion.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3c72 0%, #2a5298 50%, #3a7bd5 100%);");
             bgRegion.setPrefSize(500, 450);
 
-            // Form VBox
-            VBox formBox = new VBox(15);
+            // Form VBox with enhanced styling
+            VBox formBox = new VBox(20);
             formBox.setAlignment(Pos.CENTER);
-            formBox.setMaxWidth(400);
-            formBox.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-padding: 30; -fx-background-radius: 15;");
+            formBox.setMaxWidth(420);
+            formBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-padding: 40; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);");
 
             // Title
             Label title = new Label("Sign Up for Ticketly");
@@ -216,15 +218,15 @@ public class SceneManager {
             VBox root = new VBox(20);
             root.setAlignment(Pos.CENTER);
             root.setPadding(new javafx.geometry.Insets(40));
-            root.setStyle("-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);");
+            root.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3c72 0%, #2a5298 50%, #3a7bd5 100%);");
 
             Label title = new Label("🎬 Select a Movie");
             title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-            // Movie list
+            // Movie list with enhanced styling
             ListView<HBox> movieList = new ListView<>();
             movieList.setPrefHeight(400);
-            movieList.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 10;");
+            movieList.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
 
             // Load movies
             com.ticketly.dao.MovieRepository movieRepo = new com.ticketly.dao.MovieRepository();
@@ -235,17 +237,37 @@ public class SceneManager {
                 movieBox.setAlignment(Pos.CENTER_LEFT);
                 movieBox.setPadding(new javafx.geometry.Insets(10));
 
+                // Load image for movie from resources
+                ImageView movieImageView;
+                try {
+                    String posterUrl = movie.getPosterUrl();
+                    Image movieImage = new Image(SceneManager.class.getResourceAsStream("/" + posterUrl));
+                    movieImageView = new ImageView(movieImage);
+                    movieImageView.setFitWidth(80);
+                    movieImageView.setFitHeight(120);
+                    movieImageView.setPreserveRatio(true);
+                } catch (Exception ex) {
+                    System.err.println("Failed to load movie image: " + movie.getPosterUrl() + " - " + ex.getMessage());
+                    // If image not found, use a placeholder or no image
+                    movieImageView = new ImageView();
+                    movieImageView.setFitWidth(80);
+                    movieImageView.setFitHeight(120);
+                }
+
+                VBox movieInfoBox = new VBox(5);
                 Label movieTitle = new Label("🎥 " + movie.getTitle());
                 movieTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
                 Label movieInfo = new Label(movie.getGenre() + " | " + movie.getDurationMinutes() + " min");
                 movieInfo.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
 
-                Button selectButton = new Button("Select Showtimes");
+                Button selectButton = new Button("Select Theater");
                 selectButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5;");
-                selectButton.setOnAction(e -> showShowSelectionScreen(movie.getId()));
+                selectButton.setOnAction(e -> showTheaterSelectionScreen(movie.getId()));
 
-                movieBox.getChildren().addAll(movieTitle, movieInfo, selectButton);
+                movieInfoBox.getChildren().addAll(movieTitle, movieInfo, selectButton);
+
+                movieBox.getChildren().addAll(movieImageView, movieInfoBox);
                 movieList.getItems().add(movieBox);
             }
 
@@ -264,48 +286,107 @@ public class SceneManager {
         }
     }
 
-    private static void showShowSelectionScreen(long movieId) {
+    private static void showTheaterSelectionScreen(long movieId) {
         try {
             VBox root = new VBox(20);
             root.setAlignment(Pos.CENTER);
             root.setPadding(new javafx.geometry.Insets(40));
-            root.setStyle("-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);");
+            root.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3c72 0%, #2a5298 50%, #3a7bd5 100%);");
 
-            Label title = new Label("🕒 Select Showtime");
+            Label title = new Label("🏢 Select a Theater");
             title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-            ListView<VBox> showList = new ListView<>();
-            showList.setPrefHeight(400);
-            showList.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 10;");
+            ListView<HBox> theaterList = new ListView<>();
+            theaterList.setPrefHeight(400);
+            theaterList.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
 
-            com.ticketly.dao.ShowRepository showRepo = new com.ticketly.dao.ShowRepository();
-            java.util.List<com.ticketly.model.Show> shows = showRepo.findByMovieId(movieId);
+            // Load all theaters regardless of movie
+            com.ticketly.dao.TheaterRepository theaterRepo = new com.ticketly.dao.TheaterRepository();
+            java.util.List<com.ticketly.model.Theater> theaters = theaterRepo.findAll();
 
-            for (com.ticketly.model.Show show : shows) {
-                VBox showBox = new VBox(10);
-                showBox.setPadding(new javafx.geometry.Insets(15));
-                showBox.setStyle("-fx-border-color: #ddd; -fx-border-width: 1; -fx-background-radius: 5;");
+            for (com.ticketly.model.Theater theater : theaters) {
+                HBox theaterBox = new HBox(15);
+                theaterBox.setAlignment(Pos.CENTER_LEFT);
+                theaterBox.setPadding(new javafx.geometry.Insets(10));
 
-                Label timeLabel = new Label("⏰ " + show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-                timeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+                Label theaterName = new Label("🏢 " + theater.getName());
+                theaterName.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-                Label theaterLabel = new Label("🏢 " + show.getTheaterName());
-                Label priceLabel = new Label("💰 $" + show.getPrice());
-                Label seatsLabel = new Label("💺 Available: " + show.getAvailableSeats());
+                Label theaterLocation = new Label(theater.getLocation() + " | " + theater.getTotalSeats() + " seats");
+                theaterLocation.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
 
-                Button selectButton = new Button("Select Seats");
-                selectButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;");
-                selectButton.setOnAction(e -> showSeatSelectionScreen(show.getId()));
+                Button selectButton = new Button("Select Showtimes");
+                selectButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5;");
+                selectButton.setOnAction(e -> showShowSelectionScreen(movieId, theater.getId()));
 
-                showBox.getChildren().addAll(timeLabel, theaterLabel, priceLabel, seatsLabel, selectButton);
-                showList.getItems().add(showBox);
+                theaterBox.getChildren().addAll(theaterName, theaterLocation, selectButton);
+                theaterList.getItems().add(theaterBox);
             }
 
             Button backButton = new Button("Back to Movies");
             backButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
             backButton.setOnAction(e -> showMovieSelectionScreen());
 
-            root.getChildren().addAll(title, showList, backButton);
+            root.getChildren().addAll(title, theaterList, backButton);
+
+            Scene scene = new Scene(root, 800, 600);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Ticketly - Theaters");
+        } catch (Exception e) {
+            logger.error("Failed to load theater selection screen", e);
+            showAlert("Error", "Failed to load theater selection screen.");
+        }
+    }
+
+    private static void showShowSelectionScreen(long movieId, long theaterId) {
+        try {
+            VBox root = new VBox(20);
+            root.setAlignment(Pos.CENTER);
+            root.setPadding(new javafx.geometry.Insets(40));
+            root.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3c72 0%, #2a5298 50%, #3a7bd5 100%);");
+
+            Label title = new Label("🕒 Select Showtime");
+            title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            ListView<VBox> showList = new ListView<>();
+            showList.setPrefHeight(400);
+            showList.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
+
+            com.ticketly.dao.ShowRepository showRepo = new com.ticketly.dao.ShowRepository();
+            java.util.List<com.ticketly.model.Show> shows = showRepo.findByMovieIdAndTheaterId(movieId, theaterId);
+
+            if (shows.isEmpty()) {
+                Label noShowsLabel = new Label("No shows available for this movie at the selected theater.");
+                noShowsLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+                root.getChildren().add(noShowsLabel);
+            } else {
+                for (com.ticketly.model.Show show : shows) {
+                    VBox showBox = new VBox(10);
+                    showBox.setPadding(new javafx.geometry.Insets(15));
+                    showBox.setStyle("-fx-border-color: #ddd; -fx-border-width: 1; -fx-background-radius: 5;");
+
+                    Label timeLabel = new Label("⏰ " + show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                    timeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+                    Label theaterLabel = new Label("🏢 " + show.getTheaterName());
+                    Label priceLabel = new Label("💰 ₹" + show.getPrice());
+                    Label seatsLabel = new Label("💺 Available: " + show.getAvailableSeats());
+
+                    Button selectButton = new Button("Select Seats");
+                    selectButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5;");
+                    selectButton.setOnAction(e -> showSeatSelectionScreen(show.getId()));
+
+                    showBox.getChildren().addAll(timeLabel, theaterLabel, priceLabel, seatsLabel, selectButton);
+                    showList.getItems().add(showBox);
+                }
+                root.getChildren().add(showList);
+            }
+
+            Button backButton = new Button("Back to Theaters");
+            backButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            backButton.setOnAction(e -> showTheaterSelectionScreen(movieId));
+
+            root.getChildren().add(backButton);
 
             Scene scene = new Scene(root, 800, 600);
             primaryStage.setScene(scene);
@@ -330,7 +411,7 @@ public class SceneManager {
             seatGrid.setHgap(10);
             seatGrid.setVgap(10);
             seatGrid.setAlignment(Pos.CENTER);
-            seatGrid.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-padding: 20; -fx-background-radius: 10;");
+            seatGrid.setStyle("-fx-background-color: rgba(56, 148, 247, 0.74); -fx-padding: 20; -fx-background-radius: 10;");
 
             com.ticketly.dao.ShowRepository showRepo = new com.ticketly.dao.ShowRepository();
             com.ticketly.model.Show show = showRepo.findById(showId);
@@ -344,11 +425,34 @@ public class SceneManager {
 
             java.util.Set<Long> selectedSeatIds = new java.util.HashSet<>();
 
-            int row = 0, col = 0;
-            for (com.ticketly.model.Seat seat : seats) {
-                Button seatButton = new Button(seat.getSeatRow() + String.valueOf(seat.getSeatNumber()));
+            // Limit seats to max 20 and arrange in rows A, B, C, D
+            int maxSeats = Math.min(seats.size(), 20);
+            char[] rows = {'A', 'B', 'C', 'D'};
+            int seatsPerRow = 5; // 4 rows * 5 seats = 20 seats max
+
+            // Add column labels (1, 2, 3, 4, 5)
+            for (int col = 0; col < seatsPerRow; col++) {
+                Label colLabel = new Label(String.valueOf(col + 1));
+                colLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;");
+                seatGrid.add(colLabel, col + 1, 0);
+            }
+
+            // Add row labels (A, B, C, D)
+            for (int row = 0; row < rows.length; row++) {
+                Label rowLabel = new Label(String.valueOf(rows[row]));
+                rowLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;");
+                seatGrid.add(rowLabel, 0, row + 1);
+            }
+
+            for (int i = 0; i < maxSeats; i++) {
+                com.ticketly.model.Seat seat = seats.get(i);
+                int rowIndex = i / seatsPerRow;
+                int colIndex = i % seatsPerRow;
+                String seatLabel = rows[rowIndex] + String.valueOf(colIndex + 1);
+
+                Button seatButton = new Button(seatLabel);
                 if (!seat.isActive() || seatRepo.isSeatBooked(showId, seat.getId())) {
-                    seatButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+                    seatButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white;"); // grey color for booked seats
                     seatButton.setDisable(true);
                 } else {
                     seatButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
@@ -362,24 +466,84 @@ public class SceneManager {
                         }
                     });
                 }
-                seatGrid.add(seatButton, col, row);
-                col++;
-                if (col > 9) { // 10 seats per row
-                    col = 0;
-                    row++;
-                }
+                seatGrid.add(seatButton, colIndex + 1, rowIndex + 1);
             }
 
-            Button proceedButton = new Button("Proceed");
+            Button proceedButton = new Button("Proceed to Payment");
             proceedButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
             proceedButton.setOnAction(e -> {
                 if (selectedSeatIds.isEmpty()) {
                     showAlert("Error", "Please select at least one seat.");
                     return;
                 }
-                // Use loggedInUserId set at login
                 if (loggedInUserId == null) {
                     showAlert("Error", "User not logged in.");
+                    return;
+                }
+                showPaymentScreen(showId, selectedSeatIds);
+            });
+
+            Button backButton = new Button("Back to Showtimes");
+            backButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            backButton.setOnAction(e -> showShowSelectionScreen(show.getMovieId(), show.getTheaterId()));
+
+            root.getChildren().addAll(title, seatGrid, proceedButton, backButton);
+
+            Scene scene = new Scene(root, 800, 600);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Ticketly - Seat Selection");
+        } catch (Exception e) {
+            logger.error("Failed to load seat selection screen", e);
+            showAlert("Error", "Failed to load seat selection screen.");
+        }
+    }
+
+    private static void showPaymentScreen(long showId, java.util.Set<Long> selectedSeatIds) {
+        try {
+            VBox root = new VBox(20);
+            root.setAlignment(Pos.CENTER);
+            root.setPadding(new javafx.geometry.Insets(40));
+            root.setStyle("-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);");
+
+            Label title = new Label("💳 Payment");
+            title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label seatsLabel = new Label("Selected Seats: " + selectedSeatIds.size());
+            seatsLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
+
+            ToggleGroup paymentGroup = new ToggleGroup();
+
+            RadioButton cardOption = new RadioButton("Card");
+            cardOption.setToggleGroup(paymentGroup);
+            cardOption.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+            RadioButton upiOption = new RadioButton("UPI");
+            upiOption.setToggleGroup(paymentGroup);
+            upiOption.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+            RadioButton debitOption = new RadioButton("Debit");
+            debitOption.setToggleGroup(paymentGroup);
+            debitOption.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+            RadioButton creditOption = new RadioButton("Credit");
+            creditOption.setToggleGroup(paymentGroup);
+            creditOption.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+
+            VBox paymentOptions = new VBox(10, cardOption, upiOption, debitOption, creditOption);
+            paymentOptions.setAlignment(Pos.CENTER_LEFT);
+
+            Button confirmButton = new Button("Confirm Booking");
+            confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            confirmButton.setOnAction(e -> {
+                if (paymentGroup.getSelectedToggle() == null) {
+                    showAlert("Error", "Please select a payment method.");
+                    return;
+                }
+                com.ticketly.dao.SeatRepository seatRepo = new com.ticketly.dao.SeatRepository();
+                com.ticketly.dao.ShowRepository showRepo = new com.ticketly.dao.ShowRepository();
+                com.ticketly.model.Show show = showRepo.findById(showId);
+                if (show == null) {
+                    showAlert("Error", "Show not found.");
                     return;
                 }
                 double price = show.getPrice().doubleValue();
@@ -392,25 +556,161 @@ public class SceneManager {
                     }
                 }
                 if (allSuccess) {
-                    showAlert("Success", "Seats booked successfully!");
-                    showMovieSelectionScreen();
+                    // Fetch the latest booking for e-ticket
+                    com.ticketly.dao.BookingRepository bookingRepo = new com.ticketly.dao.BookingRepository();
+                    java.util.List<com.ticketly.model.Booking> userBookings = bookingRepo.findByUserId(loggedInUserId);
+                    if (!userBookings.isEmpty()) {
+                        com.ticketly.model.Booking latestBooking = userBookings.get(0); // Most recent
+                        showETicketScreen(latestBooking, selectedSeatIds, (RadioButton) paymentGroup.getSelectedToggle());
+                    } else {
+                        showAlert("Error", "Failed to retrieve booking details.");
+                        showSeatSelectionScreen(showId);
+                    }
                 } else {
                     showAlert("Error", "Seat booking failed.");
+                    showSeatSelectionScreen(showId);
                 }
             });
 
-            Button backButton = new Button("Back to Showtimes");
+            Button backButton = new Button("Back to Seat Selection");
             backButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
-            backButton.setOnAction(e -> showShowSelectionScreen(show.getMovieId()));
+            backButton.setOnAction(e -> showSeatSelectionScreen(showId));
 
-            root.getChildren().addAll(title, seatGrid, proceedButton, backButton);
+            root.getChildren().addAll(title, seatsLabel, paymentOptions, confirmButton, backButton);
+
+            Scene scene = new Scene(root, 600, 400);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Ticketly - Payment");
+        } catch (Exception e) {
+            logger.error("Failed to load payment screen", e);
+            showAlert("Error", "Failed to load payment screen.");
+        }
+    }
+
+    private static void showETicketScreen(com.ticketly.model.Booking booking, java.util.Set<Long> selectedSeatIds, RadioButton paymentMethod) {
+        try {
+            VBox root = new VBox(20);
+            root.setAlignment(Pos.CENTER);
+            root.setPadding(new javafx.geometry.Insets(40));
+            root.setStyle("-fx-background-color: linear-gradient(to bottom, #cbcedbff 0%, #764ba2 100%);");
+
+            Label title = new Label("🎫 E-Ticket");
+            title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            // Fetch user details
+            com.ticketly.model.User user = com.ticketly.util.AuthService.getLoggedInUser(loggedInUserId);
+            if (user == null) {
+                showAlert("Error", "User not found.");
+                return;
+            }
+
+            // Fetch show and movie details
+            com.ticketly.dao.ShowRepository showRepo = new com.ticketly.dao.ShowRepository();
+            com.ticketly.model.Show show = showRepo.findById(booking.getShowId());
+            if (show == null) {
+                showAlert("Error", "Show not found.");
+                return;
+            }
+            com.ticketly.dao.MovieRepository movieRepo = new com.ticketly.dao.MovieRepository();
+            com.ticketly.model.Movie movie = movieRepo.findById((int)show.getMovieId());
+            if (movie == null) {
+                showAlert("Error", "Movie not found.");
+                return;
+            }
+
+            // E-ticket details
+            VBox ticketBox = new VBox(10);
+            ticketBox.setStyle("-fx-background-color: rgba(56, 148, 247, 0.74); -fx-padding: 20; -fx-background-radius: 10;");
+            ticketBox.setAlignment(Pos.CENTER_LEFT);
+
+            Label ticketIdLabel = new Label("Ticket ID: " + booking.getId());
+            ticketIdLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label userNameLabel = new Label("Name: " + user.getFullName());
+            userNameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label userEmailLabel = new Label("Email: " + user.getEmail());
+            userEmailLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label movieLabel = new Label("Movie: " + movie.getTitle());
+            movieLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label showTimeLabel = new Label("Show Time: " + show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+            showTimeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label theaterLabel = new Label("Theater: " + show.getTheaterName());
+            theaterLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            // Seat labels
+            StringBuilder seatsStr = new StringBuilder("Seats: ");
+            for (Long seatId : selectedSeatIds) {
+                // Find seat label
+                com.ticketly.dao.SeatRepository seatRepo = new com.ticketly.dao.SeatRepository();
+                java.util.List<com.ticketly.model.Seat> seats = seatRepo.findByTheaterId(show.getTheaterId());
+                for (com.ticketly.model.Seat seat : seats) {
+                    if (seat.getId() == seatId) {
+                        int index = seats.indexOf(seat);
+                        if (index < 20) {
+                            int rowIndex = index / 5;
+                            int colIndex = index % 5;
+                            char row = (char) ('A' + rowIndex);
+                            seatsStr.append(row).append(colIndex + 1).append(" ");
+                        }
+                        break;
+                    }
+                }
+            }
+            Label seatsLabel = new Label(seatsStr.toString());
+            seatsLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label paymentLabel = new Label("Payment Method: " + paymentMethod.getText());
+            paymentLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label amountLabel = new Label("Total Amount: ₹" + booking.getTotalAmount());
+            amountLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            ticketBox.getChildren().addAll(ticketIdLabel, userNameLabel, userEmailLabel, movieLabel, showTimeLabel, theaterLabel, seatsLabel, paymentLabel, amountLabel);
+
+            Button downloadButton = new Button("Download E-Ticket");
+            downloadButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            downloadButton.setOnAction(e -> {
+                javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+                fileChooser.setTitle("Save E-Ticket");
+                fileChooser.setInitialFileName("e_ticket_" + booking.getId() + ".txt");
+                java.io.File file = fileChooser.showSaveDialog(primaryStage);
+                if (file != null) {
+                    try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+                        writer.write("E-Ticket\n");
+                        writer.write("--------\n");
+                        writer.write("Ticket ID: " + booking.getId() + "\n");
+                        writer.write("Name: " + user.getFullName() + "\n");
+                        writer.write("Email: " + user.getEmail() + "\n");
+                        writer.write("Movie: " + movie.getTitle() + "\n");
+                        writer.write("Show Time: " + show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "\n");
+                        writer.write("Theater: " + show.getTheaterName() + "\n");
+                        writer.write(seatsStr.toString() + "\n");
+                        writer.write("Payment Method: " + paymentMethod.getText() + "\n");
+                        writer.write("Total Amount: ₹" + booking.getTotalAmount() + "\n");
+                        showAlert("Success", "E-Ticket downloaded successfully!");
+                    } catch (java.io.IOException ex) {
+                        showAlert("Error", "Failed to download e-ticket.");
+                        logger.error("Error downloading e-ticket", ex);
+                    }
+                }
+            });
+
+            Button logoutButton = new Button("Logout");
+            logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            logoutButton.setOnAction(e -> showLoginScreen());
+
+            root.getChildren().addAll(title, ticketBox, downloadButton, logoutButton);
 
             Scene scene = new Scene(root, 800, 600);
             primaryStage.setScene(scene);
-            primaryStage.setTitle("Ticketly - Seat Selection");
+            primaryStage.setTitle("Ticketly - E-Ticket");
         } catch (Exception e) {
-            logger.error("Failed to load seat selection screen", e);
-            showAlert("Error", "Failed to load seat selection screen.");
+            logger.error("Failed to load e-ticket screen", e);
+            showAlert("Error", "Failed to load e-ticket screen.");
         }
     }
 }
