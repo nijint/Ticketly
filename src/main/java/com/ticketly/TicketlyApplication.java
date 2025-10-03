@@ -19,8 +19,12 @@ public class TicketlyApplication extends Application {
         try {
             logger.info("Starting Ticketly Application...");
 
-            // Initialize database connection
-            DatabaseUtil.initializeDatabase();
+            // Test database connection
+            if (DatabaseUtil.testConnection()) {
+                logger.info("Database connection is working");
+            } else {
+                logger.error("Database connection failed!");
+            }
 
             // Initialize scene manager
             SceneManager.initialize(primaryStage);

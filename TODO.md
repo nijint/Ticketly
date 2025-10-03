@@ -1,9 +1,7 @@
-# Error Rectification TODO
-
-- [x] Add requires for HikariCP in module-info.java (removed, using --add-reads instead)
-- [x] Create SceneManager.java class
-- [x] Remove exports/opens for non-existent packages from module-info.java
-- [x] Add --add-reads ticketly=ALL-UNNAMED to maven-compiler-plugin for HikariCP access
-- [ ] Verify compilation succeeds
-- [ ] Check if FXML files exist for SceneManager (login.fxml)
-- [ ] Test the application runs
+- [x] Update User.java: Rename passwordHash to password, update constructor, getters, setters.
+- [x] Update AuthService.java: Change to use password instead of passwordHash.
+- [x] Update UserRepository.java: Change column name to password in SQL queries, use getPassword/setPassword.
+- [x] Compile the project to check for errors.
+- [x] Run the application to ensure it works.
+- [x] Fix seat not showing by updating SeatRepository to use row_name column and insert seats for all theaters.
+- [x] Fix seat booking by updating SeatRepository bookSeat to include seat_id and check if seat is already booked.

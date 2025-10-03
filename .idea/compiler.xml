@@ -12,7 +12,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="ticketly" options="--add-reads ticketly=ALL-UNNAMED" />
+      <module name="ticketly" options="" />
     </option>
   </component>
 </project>
