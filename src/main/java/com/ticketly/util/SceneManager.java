@@ -1,5 +1,10 @@
 package com.ticketly.util;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -224,18 +229,23 @@ public class SceneManager {
             title.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
 
             // Movie list with enhanced styling
-            ListView<HBox> movieList = new ListView<>();
-            movieList.setPrefHeight(400);
-            movieList.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
+            javafx.scene.layout.FlowPane movieFlowPane = new javafx.scene.layout.FlowPane();
+            movieFlowPane.setHgap(20);
+            movieFlowPane.setVgap(20);
+            movieFlowPane.setPrefWrapLength(760); // width at which wrapping occurs
+            movieFlowPane.setStyle("-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
+            movieFlowPane.setAlignment(Pos.CENTER);
 
             // Load movies
             com.ticketly.dao.MovieRepository movieRepo = new com.ticketly.dao.MovieRepository();
             java.util.List<com.ticketly.model.Movie> movies = movieRepo.findAll();
 
             for (com.ticketly.model.Movie movie : movies) {
-                HBox movieBox = new HBox(15);
-                movieBox.setAlignment(Pos.CENTER_LEFT);
+                VBox movieBox = new VBox(10);
+                movieBox.setAlignment(Pos.CENTER);
                 movieBox.setPadding(new javafx.geometry.Insets(10));
+                movieBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
+                movieBox.setPrefWidth(150);
 
                 // Load image for movie from resources
                 ImageView movieImageView;
@@ -243,39 +253,38 @@ public class SceneManager {
                     String posterUrl = movie.getPosterUrl();
                     Image movieImage = new Image(SceneManager.class.getResourceAsStream("/" + posterUrl));
                     movieImageView = new ImageView(movieImage);
-                    movieImageView.setFitWidth(80);
-                    movieImageView.setFitHeight(120);
+                    movieImageView.setFitWidth(120);
+                    movieImageView.setFitHeight(180);
                     movieImageView.setPreserveRatio(true);
                 } catch (Exception ex) {
                     System.err.println("Failed to load movie image: " + movie.getPosterUrl() + " - " + ex.getMessage());
                     // If image not found, use a placeholder or no image
                     movieImageView = new ImageView();
-                    movieImageView.setFitWidth(80);
-                    movieImageView.setFitHeight(120);
+                    movieImageView.setFitWidth(120);
+                    movieImageView.setFitHeight(180);
                 }
 
-                VBox movieInfoBox = new VBox(5);
                 Label movieTitle = new Label("🎥 " + movie.getTitle());
-                movieTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+                movieTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-alignment: center;");
+                movieTitle.setWrapText(true);
 
                 Label movieInfo = new Label(movie.getGenre() + " | " + movie.getDurationMinutes() + " min");
-                movieInfo.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
+                movieInfo.setStyle("-fx-font-size: 12px; -fx-text-fill: #666; -fx-text-alignment: center;");
+                movieInfo.setWrapText(true);
 
                 Button selectButton = new Button("Select Theater");
                 selectButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 5;");
                 selectButton.setOnAction(e -> showTheaterSelectionScreen(movie.getId()));
 
-                movieInfoBox.getChildren().addAll(movieTitle, movieInfo, selectButton);
-
-                movieBox.getChildren().addAll(movieImageView, movieInfoBox);
-                movieList.getItems().add(movieBox);
+                movieBox.getChildren().addAll(movieImageView, movieTitle, movieInfo, selectButton);
+                movieFlowPane.getChildren().add(movieBox);
             }
 
             Button logoutButton = new Button("Logout");
             logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
             logoutButton.setOnAction(e -> showLoginScreen());
 
-            root.getChildren().addAll(title, movieList, logoutButton);
+            root.getChildren().addAll(title, movieFlowPane, logoutButton);
 
             Scene scene = new Scene(root, 800, 600);
             primaryStage.setScene(scene);
@@ -556,11 +565,15 @@ public class SceneManager {
                     }
                 }
                 if (allSuccess) {
+                    // Calculate total amount as price * number of seats
+                    double totalAmount = price * selectedSeatIds.size();
                     // Fetch the latest booking for e-ticket
                     com.ticketly.dao.BookingRepository bookingRepo = new com.ticketly.dao.BookingRepository();
                     java.util.List<com.ticketly.model.Booking> userBookings = bookingRepo.findByUserId(loggedInUserId);
                     if (!userBookings.isEmpty()) {
                         com.ticketly.model.Booking latestBooking = userBookings.get(0); // Most recent
+                        // Update total amount in booking object for display
+                        latestBooking.setTotalAmount(java.math.BigDecimal.valueOf(totalAmount));
                         showETicketScreen(latestBooking, selectedSeatIds, (RadioButton) paymentGroup.getSelectedToggle());
                     } else {
                         showAlert("Error", "Failed to retrieve booking details.");
@@ -669,41 +682,81 @@ public class SceneManager {
             Label amountLabel = new Label("Total Amount: ₹" + booking.getTotalAmount());
             amountLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-            ticketBox.getChildren().addAll(ticketIdLabel, userNameLabel, userEmailLabel, movieLabel, showTimeLabel, theaterLabel, seatsLabel, paymentLabel, amountLabel);
+            // Generate QR code with booking details
+            String qrText = "Ticket ID: " + booking.getId() + "\n" +
+                            "Name: " + user.getFullName() + "\n" +
+                            "Email: " + user.getEmail() + "\n" +
+                            "Movie: " + movie.getTitle() + "\n" +
+                            "Show Time: " + show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "\n" +
+                            "Theater: " + show.getTheaterName() + "\n" +
+                            seatsStr.toString() + "\n" +
+                            "Payment Method: " + paymentMethod.getText() + "\n" +
+                            "Total Amount: ₹" + booking.getTotalAmount();
 
-            Button downloadButton = new Button("Download E-Ticket");
-            downloadButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
-            downloadButton.setOnAction(e -> {
+            ImageView qrCodeImageView = new ImageView();
+            final java.awt.image.BufferedImage[] bufferedImageHolder = new java.awt.image.BufferedImage[1];
+            try {
+                QRCodeWriter qrCodeWriter = new QRCodeWriter();
+                BitMatrix bitMatrix = qrCodeWriter.encode(qrText, BarcodeFormat.QR_CODE, 200, 200);
+                bufferedImageHolder[0] = MatrixToImageWriter.toBufferedImage(bitMatrix);
+                java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+                javax.imageio.ImageIO.write(bufferedImageHolder[0], "png", outputStream);
+                byte[] imageBytes = outputStream.toByteArray();
+                Image qrImage = new Image(new java.io.ByteArrayInputStream(imageBytes));
+                qrCodeImageView.setImage(qrImage);
+                qrCodeImageView.setFitWidth(150);
+                qrCodeImageView.setFitHeight(150);
+                qrCodeImageView.setPreserveRatio(true);
+            } catch (WriterException | java.io.IOException ex) {
+                logger.error("Failed to generate QR code", ex);
+                showAlert("Error", "Failed to generate QR code.");
+            }
+
+            ticketBox.getChildren().addAll(ticketIdLabel, userNameLabel, userEmailLabel, movieLabel, showTimeLabel, theaterLabel, seatsLabel, paymentLabel, amountLabel, qrCodeImageView);
+
+            HBox buttonBox = new HBox(15);
+            buttonBox.setAlignment(Pos.CENTER);
+
+            Button downloadTextButton = new Button("Download E-Ticket Text");
+            downloadTextButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            downloadTextButton.setOnAction(e -> {
                 javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
-                fileChooser.setTitle("Save E-Ticket");
+                fileChooser.setTitle("Save E-Ticket Text");
                 fileChooser.setInitialFileName("e_ticket_" + booking.getId() + ".txt");
                 java.io.File file = fileChooser.showSaveDialog(primaryStage);
                 if (file != null) {
-                    try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
-                        writer.write("E-Ticket\n");
-                        writer.write("--------\n");
-                        writer.write("Ticket ID: " + booking.getId() + "\n");
-                        writer.write("Name: " + user.getFullName() + "\n");
-                        writer.write("Email: " + user.getEmail() + "\n");
-                        writer.write("Movie: " + movie.getTitle() + "\n");
-                        writer.write("Show Time: " + show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "\n");
-                        writer.write("Theater: " + show.getTheaterName() + "\n");
-                        writer.write(seatsStr.toString() + "\n");
-                        writer.write("Payment Method: " + paymentMethod.getText() + "\n");
-                        writer.write("Total Amount: ₹" + booking.getTotalAmount() + "\n");
-                        showAlert("Success", "E-Ticket downloaded successfully!");
-                    } catch (java.io.IOException ex) {
-                        showAlert("Error", "Failed to download e-ticket.");
-                        logger.error("Error downloading e-ticket", ex);
+                    try {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("E-Ticket\n");
+                        sb.append("Ticket ID: ").append(booking.getId()).append("\n");
+                        sb.append("Name: ").append(user.getFullName()).append("\n");
+                        sb.append("Email: ").append(user.getEmail()).append("\n");
+                        sb.append("Movie: ").append(movie.getTitle()).append("\n");
+                        sb.append("Show Time: ").append(show.getShowTime().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))).append("\n");
+                        sb.append("Theater: ").append(show.getTheaterName()).append("\n");
+                        sb.append(seatsStr.toString()).append("\n");
+                        sb.append("Payment Method: ").append(paymentMethod.getText()).append("\n");
+                        sb.append("Total Amount: ₹").append(booking.getTotalAmount()).append("\n");
+                        java.nio.file.Files.write(file.toPath(), sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                        showAlert("Success", "E-Ticket text file downloaded successfully!");
+                    } catch (Exception ex) {
+                        showAlert("Error", "Failed to download e-ticket text file.");
+                        logger.error("Error downloading e-ticket text file", ex);
                     }
                 }
             });
+
+            Button bookMoreButton = new Button("Book More");
+            bookMoreButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
+            bookMoreButton.setOnAction(e -> showMovieSelectionScreen());
 
             Button logoutButton = new Button("Logout");
             logoutButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 10 20;");
             logoutButton.setOnAction(e -> showLoginScreen());
 
-            root.getChildren().addAll(title, ticketBox, downloadButton, logoutButton);
+            buttonBox.getChildren().addAll(downloadTextButton, bookMoreButton, logoutButton);
+
+            root.getChildren().addAll(title, ticketBox, buttonBox);
 
             Scene scene = new Scene(root, 800, 600);
             primaryStage.setScene(scene);

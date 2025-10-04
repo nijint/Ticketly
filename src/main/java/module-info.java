@@ -16,6 +16,13 @@ module ticketly {
     // HikariCP (automatic module)
     requires com.zaxxer.hikari;
 
+    // ZXing QR Code (automatic modules)
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
+
+    // PDFBox (automatic module)
+    requires org.apache.pdfbox;
+
     // Open packages for reflection (FXML, SceneManager, etc.)
     opens com.ticketly to javafx.fxml;
     opens com.ticketly.util to javafx.fxml;
