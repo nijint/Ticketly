@@ -43,24 +43,7 @@ A comprehensive movie ticket booking desktop application built with Java, JavaFX
 - [x] **Error Handling** - Comprehensive validation and error management
 - [x] **Logging** - SLF4J with Logback for application monitoring
 
-## 🗄️ Database Schema
 
-### Core Tables
-- **`users`** - User accounts with role management
-- **`movies`** - Movie catalog with metadata
-- **`theaters`** - Theater locations and seating layouts
-- **`shows`** - Movie screenings with pricing
-- **`seats`** - Individual seat configurations
-- **`bookings`** - Ticket reservations
-- **`booking_seats`** - Seat-booking relationships
-- **`payments`** - Payment transactions
-- **`seat_reservations`** - Temporary seat locking
-
-### Key Relationships
-- Users → Bookings (One-to-Many)
-- Movies → Shows (One-to-Many)
-- Shows → Seats (Many-to-Many via booking_seats)
-- Bookings → Payments (One-to-One)
 
 ## 📁 Project Structure
 
@@ -163,10 +146,6 @@ ticketly/
    java -jar target/ticketly-1.0.0-jar-with-dependencies.jar
    ```
 
-### Default Admin Account
-- **Username**: `admin`
-- **Password**: `admin123`
-- **Email**: `admin@ticketly.com`
 
 ## 🔧 Configuration
 
@@ -191,22 +170,6 @@ db.url=jdbc:postgresql://localhost:5432/ticketly
 - **UI Themes**: Modern CSS styling with responsive design
 - **Logging**: SLF4J with Logback configuration
 
-## 📊 Current Implementation Status
-
-### ✅ Completed Features
-- **Core Architecture**: MVC structure with service layer
-- **Database Layer**: Full DAO implementation with MySQL support
-- **Authentication**: Secure login with password hashing
-- **User Management**: Registration, profile updates, password changes
-- **UI Framework**: JavaFX with modern CSS styling
-- **Utilities**: Database connection, password security, scene management
-
-### 🚧 Framework Ready (Implementation Pending)
-- **Seat Selection**: Interactive grid UI for seat booking
-- **Booking System**: Transaction-safe booking with seat locking
-- **Admin Dashboard**: Complete admin interface for system management
-- **Reports**: Booking analytics and revenue reporting
-- **Payment Integration**: Mock payment system framework
 
 ### 🎯 Recommended Next Steps
 
@@ -266,12 +229,6 @@ Current test coverage includes:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Development Guidelines
-- Follow Java naming conventions
-- Write comprehensive JavaDoc comments
-- Include unit tests for new features
-- Use consistent code formatting
-- Update documentation for API changes
 
 ## 📄 License
 
